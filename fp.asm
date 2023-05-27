@@ -2332,7 +2332,7 @@ rts      pld
 *
 ****************************************************************
 *
-~RealCom privdata
+~RealCom data
 decForm  anop                           decForm record
 style    ds    2                        0 -> exponential; 1 -> fixed
 digits   ds    2                        significant digits; decimal digits

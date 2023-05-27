@@ -37,7 +37,7 @@ StdDef   start                          dummy segment
 *              nil, no pointer is returned
 *
 *  Outputs:
-*        X-A - pointer to result string
+*        X-A - pointer to result
 *
 ****************************************************************
 *
@@ -54,17 +54,18 @@ rtl      equ   1                        return address
          phk
          plb
 
+	lda	str	if str = NULL then
+	ora	str+2
+	beq	cn2	  flag an error
          ph4   str                      lvp^.rval := cnvsr(digit);
          ph4   #index                   {convert from ascii to decform}
          ph4   #decrec
          ph4   #valid
          stz   index
          fcstr2dec
-         lda   valid                    {flag an error if SANE said to}
-         bne   cn1
-         lda   index
+         lda   index                    {flag an error if SANE said to}
          beq   cn2
-cn1      ph4   #decrec                  {convert decform to real}
+	ph4   #decrec                  {convert decform to real}
          ph4   #t1
          fdec2x
          ldx   #^t1                     set the return value
