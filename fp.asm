@@ -28,23 +28,23 @@ Dummy    start
 *  SetFPESlot - Set the FPE slot number
 *
 *  Inputs:
-*	slot - slot number
+*        slot - slot number
 *
 ****************************************************************
 *
 SetFPESlot start
 
-	phb
-	phk
-	plb
-	plx
-	ply
-	pla
-	phy
-	phx
-	plb
-	rtl
-	end
+         phb
+         phk
+         plb
+         plx
+         ply
+         pla
+         phy
+         phx
+         plb
+         rtl
+         end
 
 ****************************************************************
 *
@@ -784,7 +784,7 @@ rts      plb
 ****************************************************************
 *
 *  ~CnvULongReal - convert an unsigned long integer into an
-*	extended SANE real
+*        extended SANE real
 *
 *  Inputs:
 *        A - integer
@@ -821,7 +821,7 @@ rts      plb
          rtl                            return
 
 lval     ds    4                        long value
-	dc	i4'0'	least significant bits of comp value
+         dc    i4'0'                    least significant bits of comp value
          end
 
 ****************************************************************
@@ -870,17 +870,17 @@ rval     equ   4
 ~CompRet2 start
 
          lda   1,S                      swap address of value
-         tax		 and return address
-         lda	2,S
-	tay
-	lda	4,S
-	sta	1,S
-	lda	6,S
-	sta	3,S
-	tya
-	sta	6,S
-	txa
-	sta	5,S
+         tax                             and return address
+         lda   2,S
+         tay
+         lda   4,S
+         sta   1,S
+         lda   6,S
+         sta   3,S
+         tya
+         sta   6,S
+         txa
+         sta   5,S
          ph4   #~RealVal                push address of extended value
          fc2x                           convert to extended
          ldx   #^~RealVal               load address of result
@@ -1150,17 +1150,17 @@ lcAfterMarkStack equ 22                 location of function return value
 ~DoubleRet2 start
 
          lda   1,S                      swap address of double value
-         tax		 and return address
-         lda	2,S
-	tay
-	lda	4,S
-	sta	1,S
-	lda	6,S
-	sta	3,S
-	tya
-	sta	6,S
-	txa
-	sta	5,S
+         tax                             and return address
+         lda   2,S
+         tay
+         lda   4,S
+         sta   1,S
+         lda   6,S
+         sta   3,S
+         tya
+         sta   6,S
+         txa
+         sta   5,S
          ph4   #~RealVal                push address of extended value
          fd2x                           convert to extended
          ldx   #^~RealVal               load address of result
@@ -1248,33 +1248,33 @@ lcAfterMarkStack equ 22                 location of function return value
 ~ExtendedRet2 start
 
          lda   1,S                      swap address of value
-         tax		 and return address
-         lda	2,S
-	tay
-	lda	4,S
-	sta	1,S
-	lda	6,S
-	sta	3,S
-	tya
-	sta	6,S
-	txa
-	sta	5,S
-	tsc		set up a stack frame
-	phd
-	tcd
-	phb
-	phk
-	plb
-	ldy	#8	move the extended value
-lb1	lda	[1],Y
-	sta	~RealVal,Y
-	dey
-	dey
-	bpl	lb1
-	plb		get rid of the stack frame
-	pld
-	pla
-	pla
+         tax                             and return address
+         lda   2,S
+         tay
+         lda   4,S
+         sta   1,S
+         lda   6,S
+         sta   3,S
+         tya
+         sta   6,S
+         txa
+         sta   5,S
+         tsc                            set up a stack frame
+         phd
+         tcd
+         phb
+         phk
+         plb
+         ldy   #8                       move the extended value
+lb1      lda   [1],Y
+         sta   ~RealVal,Y
+         dey
+         dey
+         bpl   lb1
+         plb                            get rid of the stack frame
+         pld
+         pla
+         pla
          ldx   #^~RealVal               load address of result
          ldy   #~RealVal
          rtl                            return
@@ -1290,21 +1290,21 @@ lb1	lda	[1],Y
 ;
 ;  Definition of a file structure
 ;
-~flLen	equ	$0	length of the buffer
-~flRef	equ	$4	ProDOS reference number
-~flKind	equ	$6	Open for input (1), output (2),
-!			  text input (5), text output (6)
-~flEOLN	equ	$8	end of line flag
-~flEOF	equ	$A	end of file flag
-~flNameLen equ	$C	length of the file name
-~flName	equ	$E	pointer to name of file
-~flHeader equ	$12	length of the file header; buffer
+~flLen   equ   $0                       length of the buffer
+~flRef   equ   $4                       ProDOS reference number
+~flKind  equ   $6                       Open for input (1), output (2),
+!                                         text input (5), text output (6)
+~flEOLN  equ   $8                       end of line flag
+~flEOF   equ   $A                       end of file flag
+~flNameLen equ $C                       length of the file name
+~flName  equ   $E                       pointer to name of file
+~flHeader equ  $12                      length of the file header; buffer
 ;
 ;  File buffer variables
 ;
-~fileBuff ds	4	pointer to next file buffer
-~fileRecBuff ds 4	pointer to next file record buffer
-	end
+~fileBuff ds   4                        pointer to next file buffer
+~fileRecBuff ds 4                       pointer to next file record buffer
+         end
 
 ****************************************************************
 *
@@ -1462,100 +1462,100 @@ lb1      rtl
 *  ~ReadCharInput - read a character from standard in
 *
 *  Outputs:
-*	~EOLNInput - eoln(input)
-*	~EOFInput - eof(input)
-*	A - character read
-*	~InputChar - character read
+*        ~EOLNInput - eoln(input)
+*        ~EOFInput - eof(input)
+*        A - character read
+*        ~InputChar - character read
 *
 ****************************************************************
 *
 ~GetCharInput start
 ~ReadCharInput entry
-	longa on
-	longi on
-return	equ	13	RETURN key code
+         longa on
+         longi on
+return   equ   13                       RETURN key code
 
-	phb
-	phk
-	plb
-	lda	~EOFInput	check for read at EOF
-	beq	lb0
-	error #3	(read while at end of file)
-	stz	~EOFInput
-lb0	jsl	SysKeyin	get a character
-	and	#$00FF
-	stz	~EOLNInput	eoln(input) := false
-	cmp	#return	if its a return then
-	bne	lb1	  eoln(input) := true
-	inc	~EOLNInput
-	lda	#' '	  return a space
-lb1	cmp	#0	if its a null then
-	bne	lb2	  eof(input) := true
-	inc	~EOFInput
-	inc	~EOLNInput
-	lda	#' '	  return a space
-lb2	short M	return the char
-	sta	~InputChar
-	long	M
-	plb
-	rtl
-	end
+         phb
+         phk
+         plb
+         lda   ~EOFInput                check for read at EOF
+         beq   lb0
+         error #3                       (read while at end of file)
+         stz   ~EOFInput
+lb0      jsl   SysKeyin                 get a character
+         and   #$00FF
+         stz   ~EOLNInput               eoln(input) := false
+         cmp   #return                  if its a return then
+         bne   lb1                        eoln(input) := true
+         inc   ~EOLNInput
+         lda   #' '                       return a space
+lb1      cmp   #0                       if its a null then
+         bne   lb2                        eof(input) := true
+         inc   ~EOFInput
+         inc   ~EOLNInput
+         lda   #' '                       return a space
+lb2      short M                        return the char
+         sta   ~InputChar
+         long  M
+         plb
+         rtl
+         end
 
 ****************************************************************
 *
 *  ~GetSBuffer - allocate a string buffer
 *
 *  Inputs:
-*	a,x - number of bytes to allocate
+*        a,x - number of bytes to allocate
 *
 *  Outputs:
-*	a,x - pointer to buffer
-*	~StringList - buffer is added to string list
+*        a,x - pointer to buffer
+*        ~StringList - buffer is added to string list
 *
 ****************************************************************
 *
 ~GetSBuffer start
-	longa on
-	longi on
-r0	equ	0	save 0 page pointer
+         longa on
+         longi on
+r0       equ   0                        save 0 page pointer
 
-	phb		set data bank reg
-	phk
-	plb
+         phb                            set data bank reg
+         phk
+         plb
 
-	clc		add the node pointer
-	adc	#4
-	bcc	gs1
-	inx
-gs1	phx		get a buffer
-	pha
-	jsl	~New
-	sta	buff
-	stx	buff+2
-	ora	buff+2
-	beq	err
-	ph4	r0	save 0 page
-	move4 buff,r0	insert the buffer into the list
-	lda	~StringList
-	sta	[r0]
-	ldy	#2
-	lda	~StringList+2
-	sta	[r0],y
-	move4 buff,~StringList
-	add4	buff,#4	adjust buffer pointer past node
-	pl4	r0
-	lda	buff	return the pointer
-	ldx	buff+2
-	plb
-	clc
-	rts
+         clc                            add the node pointer
+         adc   #4
+         bcc   gs1
+         inx
+gs1      phx                            get a buffer
+         pha
+         jsl   ~New
+         sta   buff
+         stx   buff+2
+         ora   buff+2
+         beq   err
+         ph4   r0                       save 0 page
+         move4 buff,r0                  insert the buffer into the list
+         lda   ~StringList
+         sta   [r0]
+         ldy   #2
+         lda   ~StringList+2
+         sta   [r0],y
+         move4 buff,~StringList
+         add4  buff,#4                  adjust buffer pointer past node
+         pl4   r0
+         lda   buff                     return the pointer
+         ldx   buff+2
+         plb
+         clc
+         rts
 
-err	plb		restore data bank reg
-	sec
-	rts
+err      plb                            restore data bank reg
+         sec
+         rts
 
-buff	ds	4	buffer pointer
-	end
+buff     ds    4                        buffer pointer
+         end
 
 ****************************************************************
 *
@@ -1955,10 +1955,10 @@ lb12     jsr   NMID                     read the exponent digits
 ;
 ;  Convert the string into a number
 ;
-cv1      lda	pasString		make sure we got something
-	and	#$00FF
-	beq	err1
-	ph4   #pasString+1                     lvp^.rval := cnvsr(digit);
+cv1      lda   pasString                        make sure we got something
+         and   #$00FF
+         beq   err1
+         ph4   #pasString+1                     lvp^.rval := cnvsr(digit);
          ph4   #index                           {convert from ascii to decform}
          ph4   #decrec
          ph4   #valid
@@ -2054,7 +2054,7 @@ tab      equ   9                        TAB key code
          phk
          plb
 
-lb1      jsl   ~GetCharInput	skip leading white space
+lb1      jsl   ~GetCharInput            skip leading white space
          cmp   #tab
          beq   lb1
          cmp   #' '
@@ -2108,9 +2108,9 @@ lb12     jsr   NMID                     read the exponent digits
 ;  Convert the string into a number
 ;
 cv1      jsl   ~PutCharInput
-	lda	pasString		make sure we got something
-	and	#$00FF
-	beq	err1
+         lda   pasString                        make sure we got something
+         and   #$00FF
+         beq   err1
          ph4   #pasString+1                     lvp^.rval := cnvsr(digit);
          ph4   #index                           {convert from ascii to decform}
          ph4   #decrec
@@ -2244,17 +2244,17 @@ lcAfterMarkStack equ 22                 size of default part of stack frame
 ~RealRet2 start
 
          lda   1,S                      swap address of value
-         tax		 and return address
-         lda	2,S
-	tay
-	lda	4,S
-	sta	1,S
-	lda	6,S
-	sta	3,S
-	tya
-	sta	6,S
-	txa
-	sta	5,S
+         tax                             and return address
+         lda   2,S
+         tay
+         lda   4,S
+         sta   1,S
+         lda   6,S
+         sta   3,S
+         tya
+         sta   6,S
+         txa
+         sta   5,S
          ph4   #~RealVal                push address of extended value
          fs2x                           convert to extended
          ldx   #^~RealVal               load address of result
@@ -2662,66 +2662,66 @@ lb1      txy
 *  StringToStandard - Convert a string to standard form
 *
 *  "Standard form" means the pointer points to the first char
-*  of the string, and the length is the current length.	 See
+*  of the string, and the length is the current length.  See
 *  also ~StringToMaxStandard.
 *
 *  Inputs:
-*	addr - address of string
-*	len - length of string
+*        addr - address of string
+*        len - length of string
 *
 *  Outputs:
-*	addr - ptr to first char
-*	len - current length of string
+*        addr - ptr to first char
+*        len - current length of string
 *
 ****************************************************************
 *
 ~StringToStandard start
-addr	equ	7	string address
-len	equ	5	string length
+addr     equ   7                        string address
+len      equ   5                        string length
 
-	phd		set up local DP
-	tsc
-	tcd
-	lda	len	if length < 0 then
-	beq	lb5
-	bpl	lb2
-	inc	a	  if length = -1 then
-	bne	lb1
-	lda	addr+2	    if char = 0 then
-	and	#$00FF	      {string is a null character}
-	bne	lb0
-	stz	len	      len := 0
-	bra	lb5	    endif
-lb0	lda	#1	    len := 1
-	sta	len	    {string is a single character}
-	lda	addr+2
-	sta	>char
-	lla	addr,char
-	bra	lb5	    endif
-!			  endif
-!			  {string has a length byte}
-lb1	lda	[addr]	  len := addr^
-	and	#$00FF
-	sta	len
-	inc4	addr	  ++addr {skip length byte}
-	bra	lb5	else
-!			  {string is a nul terminated string}
-lb2	ldx	len	  scan string for nul to find length
-	ldy	#0
-	short M
-lb3	lda	[addr],Y
-	beq	lb4
-	iny
-	dex
-	bne	lb3
-lb4	sty	len
-	long	M	endif
+         phd                            set up local DP
+         tsc
+         tcd
+         lda   len                      if length < 0 then
+         beq   lb5
+         bpl   lb2
+         inc   a                          if length = -1 then
+         bne   lb1
+         lda   addr+2                       if char = 0 then
+         and   #$00FF                         {string is a null character}
+         bne   lb0
+         stz   len                            len := 0
+         bra   lb5                          endif
+lb0      lda   #1                           len := 1
+         sta   len                          {string is a single character}
+         lda   addr+2
+         sta   >char
+         lla   addr,char
+         bra   lb5                          endif
+!                                         endif
+!                                         {string has a length byte}
+lb1      lda   [addr]                     len := addr^
+         and   #$00FF
+         sta   len
+         inc4  addr                       ++addr {skip length byte}
+         bra   lb5                      else
+!                                         {string is a nul terminated string}
+lb2      ldx   len                        scan string for nul to find length
+         ldy   #0
+         short M
+lb3      lda   [addr],Y
+         beq   lb4
+         iny
+         dex
+         bne   lb3
+lb4      sty   len
+         long  M                        endif
 
-lb5	pld
-	rts
+lb5      pld
+         rts
 
-char	ds	2	value of a character string
-	end
+char     ds    2                        value of a character string
+         end
 
 ****************************************************************
 *
@@ -2856,10 +2856,10 @@ lb1      lda   decDig,X
          bpl   lb1
          jsl   ~FormatReal
          ph4   #pasString-1             write the string
-         ph2	#1
-	ph2	#0
-	ph2	#1
-	jsl	~Puts
+         ph2   #1
+         ph2   #0
+         ph2   #1
+         jsl   ~Puts
 
          plb
          return
@@ -2894,10 +2894,10 @@ lb1      lda   decDig,X
          bpl   lb1
          jsl   ~FormatReal
          ph4   #pasString-1             write the string
-         ph2	#1
-	ph2	#0
-	ph2	#0
-	jsl	~Puts
+         ph2   #1
+         ph2   #0
+         ph2   #0
+         jsl   ~Puts
 
          plb
          return

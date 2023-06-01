@@ -964,12 +964,12 @@ lb1      lda   x,X                      t2 := x
          beq   lb2
          lda   #ERANGE
          sta   >errno
-lb2      ldy	#6
-lb3	lda   t3,Y                     return the integer part
+lb2      ldy   #6
+lb3      lda   t3,Y                     return the integer part
          sta   [nptr],Y
-	dey
-	dey
-	bpl	lb3
+         dey
+         dey
+         bpl   lb3
          lla   nptr,t1                  set up to return the result
 
          plb
