@@ -116,12 +116,13 @@ cn2c     lda   case                     if the E should be uppercase then
          ldx   ~str
 cn3      lda   ~str,X
          cmp   #'e'
-         beq   cn4
-         dex
-         bne   cn3
-cn4      lda   #'E'
+         bne   cn3a
+         lda   #'E'
          sta   ~str,X
-         long  I,M
+         bra   cn4
+cn3a     dex
+         bne   cn3
+cn4      long  I,M
 
 cn5      lda   ~str+1                   if the first char is a space then
          and   #$00FF
