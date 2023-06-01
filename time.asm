@@ -43,15 +43,26 @@ difftime start
          phk
          plb
 
-         sub4  t1,t2,itime              get the difference
+         sec                            get the difference
+         lda   t1
+         sbc   t2
+         sta   itime
+         lda   t1+2
+         sbc   t2+2
+         sta   itime+2
+         lda   #0
+         bcs   lb1
+         dec   a
+lb1      sta   itime+4
+         sta   itime+6
+
          ph4   #itime                   convert to real
          ph4   #xtime
-         fl2x
-         lla   t1,xtime
+         fc2x
 
          plb
-         creturn 4:t1
+         creturn 10:xtime
 
-itime    ds    4
+itime    ds    8
 xtime    ds    10
          end
