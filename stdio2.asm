@@ -364,6 +364,11 @@ aexp     ds    2
          using ~scanfCommon
          using ~printfCommon
 arg      equ   11                       argument
+
+FX2X_op  equ   $0010                    SANE opwords for conversions
+FX2D_op  equ   $0110
+FX2S_op  equ   $0210
+
 ;
 ;  Read the ASCII version of the number
 ;
@@ -454,10 +459,14 @@ dg2      ph4   #0                       convert to an extended number
          ph4   arg
          dec   ~size
          beq   lb11
-         fx2s
+         bmi   lb11a
+         ph2   #FX2X_op
          bra   lb12
-lb11     fx2d
-lb12     lda   ~suppress                quit if output is suppressed
+lb11     ph2   #FX2D_op
+         bra   lb12
+lb11a    ph2   #FX2S_op
+lb12     _SANEFP816
+         lda   ~suppress                quit if output is suppressed
          bne   lb13
          ldy   #2                       remove the parameter from the stack
          jsr   ~RemoveWord

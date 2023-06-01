@@ -204,18 +204,6 @@
  LDX #$090A
  JSL $E10000
  MEND
- MACRO
-&LAB FX2S
-&LAB PEA $0210
- LDX #$090A
- JSL $E10000
- MEND
- MACRO
-&LAB FX2D
-&LAB PEA $0110
- LDX #$090A
- JSL $E10000
- MEND
  macro
 &l add2 &n1,&n2,&n3
  aif c:&n3,.a
@@ -301,3 +289,8 @@
 .b
 &l sta &op
  mend
+ MACRO
+&lab _SANEFP816
+&lab ldx #$090A
+ jsl $E10000
+ MEND
