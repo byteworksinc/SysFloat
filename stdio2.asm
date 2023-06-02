@@ -136,7 +136,11 @@ cn5      lda   ~str+1                   if the first char is a space then
          dec   ~str                       remove it
          move  ~str+2,~str+1,#l:~str-2
 
-cn5a     lda   ~digits                  if ~digits = 0 then
+cn5a     lda   ~digits                  if digits after decimal point = 0 then
+         ldx   ~style
+         bne   cn5b
+         dec   a
+cn5b     tax
          bne   cn10
          lda   ~altForm                   if ~altForm then
          beq   cn10
