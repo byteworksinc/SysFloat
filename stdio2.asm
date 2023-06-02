@@ -60,6 +60,11 @@ fl1      stz   ~style                   exponential format
          lda   #1
          sta   ~style
          stz   case
+         bra   sn1
+~Format_F entry
+         lda   #1
+         sta   ~style
+         sta   case
 ;
 ;  If the value is negative, use the sign flag
 ;
@@ -132,9 +137,9 @@ cn5      lda   ~str+1                   if the first char is a space then
          move  ~str+2,~str+1,#l:~str-2
 
 cn5a     lda   ~digits                  if ~digits = 0 then
-         bne   dp0
+         bne   cn10
          lda   ~altForm                   if ~altForm then
-         beq   dp0
+         beq   cn10
          short I,M                          insert a '.' into the string
          inc   ~str
          ldx   #1
@@ -157,6 +162,14 @@ cn8      cpx   ~str
          sta   ~str,X
          bra   cn8
 cn9      long  I,M
+cn10     lda   case                     if letters should be lowercase than
+         bne   dp0
+         ldx   #2                         force first three chars to lowercase
+cn11     lda   ~str,X                       (this covers INF or NAN)
+         ora   #$2020
+         sta   ~str,X
+         dex
+         bne   cn11
 ;
 ;  Determine the padding and do left padding
 ;
@@ -343,7 +356,10 @@ mf2      brl   ~Format_E                  else use E format specifier
 mf3      sec                            else
          lda   ~precision                 ~precision -= ~exp
          sbc   aexp
-         brl   ~Format_f                  use f format specifier
+         lda   case                       if case then
+         bne   mf4
+         brl   ~Format_f                    use f format specifier
+mf4      brl   ~Format_F                  else use F format specifier
 
 case     ds    2
 aexp     ds    2
