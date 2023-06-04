@@ -323,10 +323,13 @@ fl1      anop
          lda   #6                         use a precision of 6
          sta   ~precision
          inc   ~precisionSpecified        note that it is givin
-cn1      anop
+cn1      lda   ~precision               if precision is 0 then
+         bne   cn2
+         inc   a                          treat it as being 1
+         sta   ~precision
 
-         lda   ~precision               set the precision
-         sta   ~digits
+cn2      sta   ~digits                  set the precision
+         stz   ~style                   use exponential style for conversion
          ph4   #~decForm                convert do a decimal record
          ph4   argp
          ph4   #~decRec
@@ -337,36 +340,31 @@ cn1      anop
          lda   ~altForm                 strip zeros?
          eor   #1
          sta   ~removeZeros
-         lda   #1                       force '.' unless removed by stripping
-         sta   ~altForm
-         lda   ~sig                     if (~exp < -3) or (~exp > ~precision) then
+         lda   ~sig                     if (exp < -4) or (exp >= ~precision) then
          and   #$00FF
          clc
          adc   ~exp
          dec   A
-         sta   aexp
          bpl   mf1
-         cmp   #-3
+         cmp   #-4
          bge   mf3
 mf1      cmp   ~precision
-         ble   mf3
+         blt   mf3
          dec   ~precision                 ~precision -= 1
-         bpl   mf1a
-         stz   ~precision
 mf1a     lda   case                       if case then
          bne   mf2
          brl   ~Format_e                    use e format specifier
 mf2      brl   ~Format_E                  else use E format specifier
-mf3      sec                            else
-         lda   ~precision                 ~precision -= ~exp
-         sbc   aexp
+mf3      clc                            else
+         eor   #$FFFF                     ~precision -= exp + 1
+         adc   ~precision
+         sta   ~precision
          lda   case                       if case then
          bne   mf4
          brl   ~Format_f                    use f format specifier
 mf4      brl   ~Format_F                  else use F format specifier
 
 case     ds    2
-aexp     ds    2
          end
 
 ****************************************************************
