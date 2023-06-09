@@ -62,3 +62,206 @@
  LDX #$0A0A
  JSL $E10000
  MEND
+ MACRO
+&lab subroutine &parms,&work
+&lab anop
+ aif c:&work,.a
+ lclc &work
+&work setc 0
+.a
+ gbla &totallen
+ gbla &worklen
+&worklen seta &work
+&totallen seta 0
+ aif c:&parms=0,.e
+ lclc &len
+ lclc &p
+ lcla &i
+&i seta c:&parms
+.b
+&p setc &parms(&i)
+&len amid &p,2,1
+ aif "&len"=":",.c
+&len amid &p,1,2
+&p amid &p,4,l:&p-3
+ ago .d
+.c
+&len amid &p,1,1
+&p amid &p,3,l:&p-2
+.d
+&p equ &totallen+3+&work
+&totallen seta &totallen+&len
+&i seta &i-1
+ aif &i,^b
+.e
+ tsc
+ sec
+ sbc #&work
+ tcs
+ inc a
+ phd
+ tcd
+ mend
+ MACRO
+&lab return &r
+&lab anop
+ lclc &len
+ aif c:&r,.a
+ lclc &r
+&r setc 0
+&len setc 0
+ ago .h
+.a
+&len amid &r,2,1
+ aif "&len"=":",.b
+&len amid &r,1,2
+&r amid &r,4,l:&r-3
+ ago .c
+.b
+&len amid &r,1,1
+&r amid &r,3,l:&r-2
+.c
+ aif &len<>2,.d
+ ldy &r
+ ago .h
+.d
+ aif &len<>4,.e
+ ldx &r+2
+ ldy &r
+ ago .h
+.e
+ aif &len<>10,.g
+ aif &totallen=0,.f
+ lda &worklen+1
+ sta &worklen+&totallen+1
+ lda &worklen
+ sta &worklen+&totallen
+.f
+ pld
+ tsc
+ clc
+ adc #&worklen+&totallen
+ tcs
+ phb
+ plx
+ ply
+ lda &r+8
+ pha
+ lda &r+6
+ pha
+ lda &r+4
+ pha
+ lda &r+2
+ pha
+ lda &r
+ pha
+ phy
+ phx
+ plb
+ rtl
+ mexit
+.g
+ mnote 'Not a valid return length',16
+ mexit
+.h
+ aif &totallen=0,.i
+ lda &worklen+1
+ sta &worklen+&totallen+1
+ lda &worklen
+ sta &worklen+&totallen
+.i
+ pld
+ tsc
+ clc
+ adc #&worklen+&totallen
+ tcs
+ aif &len=0,.j
+ tya
+.j
+ rtl
+ mend
+ macro
+&l inc4 &a
+&l ~setm
+ inc &a
+ bne ~&SYSCNT
+ inc 2+&a
+~&SYSCNT ~restm
+ mend
+ macro
+&l ~restm
+&l anop
+ aif (&~la+&~li)=2,.i
+ sep #32*(.not.&~la)+16*(.not.&~li)
+ aif &~la,.h
+ longa off
+.h
+ aif &~li,.i
+ longi off
+.i
+ mend
+ macro
+&l ~setm
+&l anop
+ aif c:&~la,.b
+ gblb &~la
+ gblb &~li
+.b
+&~la setb s:longa
+&~li setb s:longi
+ aif s:longa.and.s:longi,.a
+ rep #32*(.not.&~la)+16*(.not.&~li)
+ longa on
+ longi on
+.a
+ mend
+ macro
+&l jeq &bp
+&l bne *+5
+ brl &bp
+ mend
+ macro
+&l long &a,&b
+ lclb &i
+ lclb &m
+&a amid &a,1,1
+&m setb ("&a"="M").or.("&a"="m")
+&i setb ("&a"="I").or.("&a"="i")
+ aif c:&b=0,.a
+&b amid &b,1,1
+&m setb ("&b"="M").or.("&b"="m").or.&m
+&i setb ("&b"="I").or.("&b"="i").or.&i
+.a
+&l rep #&m*32+&i*16
+ aif .not.&m,.b
+ longa on
+.b
+ aif .not.&i,.c
+ longi on
+.c
+ mend
+ macro
+&l short &a,&b
+ lclb &i
+ lclb &m
+&a amid &a,1,1
+&m setb ("&a"="M").or.("&a"="m")
+&i setb ("&a"="I").or.("&a"="i")
+ aif c:&b=0,.a
+&b amid &b,1,1
+&m setb ("&b"="M").or.("&b"="m").or.&m
+&i setb ("&b"="I").or.("&b"="i").or.&i
+.a
+&l sep #&m*32+&i*16
+ aif .not.&m,.b
+ longa off
+.b
+ aif .not.&i,.c
+ longi off
+.c
+ mend
+ macro
+&l jne &bp
+&l beq *+5
+ brl &bp
+ mend
