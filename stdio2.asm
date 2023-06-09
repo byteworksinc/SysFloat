@@ -480,12 +480,12 @@ dg2      ph4   #0                       convert to an extended number
          beq   lb11
          bmi   lb11a
          ph2   #FX2X_op
-         bra   lb12
+         bra   lb11b
 lb11     ph2   #FX2D_op
-         bra   lb12
+         bra   lb11b
 lb11a    ph2   #FX2S_op
-lb12     _SANEFP816
-         lda   ~suppress                quit if output is suppressed
+lb11b    _SANEFP816
+lb12     lda   ~suppress                quit if output is suppressed
          bne   lb13
          ldy   #2                       remove the parameter from the stack
          jsr   ~RemoveWord
