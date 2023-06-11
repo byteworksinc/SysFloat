@@ -394,9 +394,6 @@ FX2S_op  equ   $0210
          stz   gotDigit                 no characters read yet
          stz   hex                      assume not in hex format
          stz   disp                     no characters in the buffer yet
-         lda   ~scanWidth               make sure we have a scan width
-         bne   lb1
-         dec   ~scanWidth
 lb1      jsl   ~getchar                 skip leading whitespace...
          cmp   #EOF                     if at EOF then
          bne   lb1b
@@ -629,7 +626,7 @@ GetDigits cmp  #'0'
 gd0      sta   gotDigit
          jsr   NextChar
          bcs   gd2
-         bne   GetDigits
+         bra   GetDigits
 gd1      clc
 gd2      rts
 ;
