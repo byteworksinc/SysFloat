@@ -391,7 +391,8 @@ FX2S_op  equ   $0210
 ;
 ;  Read the ASCII version of the number
 ;
-         stz   read                     no characters read yet
+         stz   gotDigit                 no characters read yet
+         stz   hex                      assume not in hex format
          stz   disp                     no characters in the buffer yet
          lda   ~scanWidth               make sure we have a scan width
          bne   lb1
@@ -409,70 +410,160 @@ lb1a     tax                            ...back to skipping whitespace
          txa
          dec   ~scanWidth
 
-lb2      cmp   #'+'                     allow a leading sign
-         beq   lb3
+         cmp   #'+'                     allow a leading sign
+         beq   lb2
          cmp   #'-'
-         bne   lb5
-lb3      jsr   PutChar
-lb4      jsr   GetChar
-         bcs   lb10
-lb5      cmp   #'0'                     skip leading 0's
-         beq   lb4
+         bne   lb2a
+lb2      jsr   NextChar
+         jcs   lb10err
+lb2a     cmp   #'0'                     check for leading 0x
+         bne   lb3
+         sta   gotDigit
+         jsr   NextChar
+         jcs   lb10good
+         ldy   #'X'
+         jsr   CmpLetter
+         jcc   lb5b
+lb2b     inc   hex                      if 0x found, flag as hex
+         stz   gotDigit
+         jsr   NextChar
+         bcs   to_lb10err
+         brl   lb5c
 
-         pha                            make sure there is at least one digit
-         lda   #'0'
+lb3      ldy   #'I'                     check for INF or INFINITY
+         jsr   CmpLetter
+         bcc   lb4
+         jsr   NextChar
+         bcs   to_lb10err
+         ldy   #'N'
+         jsr   CmpLetter
+         bcc   to_lb9a
+         jsr   NextChar
+         bcs   to_lb10err
+         ldy   #'F'
+         jsr   CmpLetter
+         bcc   to_lb9a
+         jsr   NextChar
+         bcs   to_lb10good
+         ldy   #'I'
+         jsr   CmpLetter
+         bcc   infOrNan
+         jsr   NextChar
+         bcs   to_lb10err
+         ldy   #'N'
+         jsr   CmpLetter
+         bcc   to_lb9a
+         jsr   NextChar
+         bcs   to_lb10err
+         ldy   #'I'
+         jsr   CmpLetter
+         bcc   to_lb9a
+         jsr   NextChar
+         bcs   to_lb10err
+         ldy   #'T'
+         jsr   CmpLetter
+         bcc   to_lb9a
+         jsr   NextChar
+         bcs   to_lb10err
+         ldy   #'Y'
+         jsr   CmpLetter
+         bcc   to_lb9a
          jsr   PutChar
-         pla
-         ldx   #20                      set the max digit count
-         stx   maxDig
-         jsr   GetDigits                get the digits before the '.'
+to_lb10good anop
+         brl   lb10good
+
+to_lb9a  brl   lb9a
+to_lb10err brl lb10err
+
+lb4      ldy   #'N'                     check for NAN or NAN(n-char-sequence)
+         jsr   CmpLetter
+         bcc   lb5c
+         jsr   NextChar
+         bcs   to_lb10err
+         ldy   #'A'
+         jsr   CmpLetter
+         bcc   to_lb9a
+         jsr   NextChar
+         bcs   to_lb10err
+         ldy   #'N'
+         jsr   CmpLetter
+         bcc   to_lb9a
+         jsr   NextChar
+         cmp   #'('
+         beq  lb4a
+infOrNan jsl   ~putback
+         bra   to_lb10good
+
+lb4a     jsr   NextChar
+         cmp   #'0'
+         blt   lb4b
+         cmp   #'9'+1
+         blt   lb4a
+         cmp   #'A'
+         blt   lb9a
+         cmp   #'Z'+1
+         blt   lb4a
+         cmp   #'_'
+         beq   lb4a
+         cmp   #'a'
+         blt   lb9a
+         cmp   #'z'+1
+         blt   lb4a
+lb4b     cmp   #')'
+         beq   lb10good
+         bra   lb9a
+
+lb5      jsr   GetChar
+         bcs   lb10
+lb5b     cmp   #'0'                     skip leading 0's (decimal only)
+         beq   lb5
+
+lb5c     jsr   GetDigits                get the digits before the '.'
          bcs   lb10
          cmp   #'.'                     get the optional '.'
          bne   lb6
-         jsr   PutChar
-         jsr   GetChar
+         jsr   NextChar
          bcs   lb10
          jsr   GetDigits                get the fraction digits
          bcs   lb10
-lb6      cmp   #'e'                     allow for an exponent
-         beq   lb7
-         cmp   #'E'
-         bne   lb9a
-lb7      jsr   PutChar
-         jsr   GetChar                  allow for an exponent sign
-         bcs   lb10
+lb6      ldx   gotDigit                 error if no digits found
+         beq   lb9a
+         ldy   #'E'                     allow for an exponent
+         ldx   hex
+         beq   lb6c
+         ldy   #'P'
+lb6c     jsr   CmpLetter
+         bcc   lb9a
+lb7      jsr   NextChar                 allow for an exponent sign
+         bcs   lb10err
          cmp   #'+'
          beq   lb8
          cmp   #'-'
          bne   lb9
-lb8      jsr   PutChar
-         jsr   GetChar
-         bcs   lb10
-lb9      ldx   #20                      allow for an exponent
-         stx   maxDig
+lb8      jsr   NextChar
+         bcs   lb10err
+lb9      stz   gotDigit                 get exponent digits
+         stz   hex
          jsr   GetDigits
          bcs   lb10
 lb9a     jsl   ~putback                 return the last char to the input stream
 
-lb10     lda   read                     if no chars read then
-         bne   lb10a
-         inc   ~scanError                 ~scanError = true
+lb10     lda   gotDigit                 if no digits read then
+         bne   lb10good
+lb10err  inc   ~scanError                 ~scanError = true
          dec   ~assignments               no assignment made
          bra   lb12                       skip the save
-lb10a    lda   ~suppress                quit if output is suppressed
+lb10good lda   ~suppress                quit if output is suppressed
          bne   lb13
-         ldy   disp                     if the last char is not a digit then
-         lda   ~str-1,Y
-         and   #$00FF
-         cmp   #'0'
+
+         ph4   #0                       convert to an extended number
+         ldy   disp                       (if too long, give a NaN)
+         cpy   #l:~str
          blt   dg1
-         cmp   #'9'+1
-         blt   dg2
-dg1      lda   #'0'                       place a zero in the number
-         jsr   PutChar
-dg2      ph4   #0                       convert to an extended number
-         ph4   #~str
-         jsl   strtod
+         ph4   #nanascbin
+         bra   dg2
+dg1      ph4   #~str
+dg2      jsl   strtod
          phx                            convert and save
          pha
          ph4   arg
@@ -492,11 +583,12 @@ lb12     lda   ~suppress                quit if output is suppressed
 lb13     rts
 ;
 ;  GetChar - get a character; return C set of no more can be read
+;  NextChar - equivalent to PutChar followed by GetChar
 ;
+NextChar jsr   PutChar
 GetChar  lda   ~scanWidth
          beq   gc1
          jsl   ~getchar
-         inc   read
          dec   ~scanWidth
          clc
          rts
@@ -507,27 +599,55 @@ gc1      sec
 ;  PutChar - out a character in the string
 ;
 PutChar  ldy   disp
+         cpy   #l:~str-1
+         beq   pc1
+         bge   pc2
          sta   ~str,Y
-         inc   disp
-         rts
+pc1      inc   disp
+pc2      rts
 ;
 ;  GetDigits - read a stream of digits
 ;
 GetDigits cmp  #'0'
          blt   gd1
          cmp   #'9'+1
+         blt   gd0
+         ldx   hex
+         beq   gd1
+         cmp   #'A'
+         blt   gd1
+         cmp   #'F'+1
+         blt   gd0
+         cmp   #'a'
+         blt   gd1
+         cmp   #'f'+1
          bge   gd1
-         jsr   PutChar
-         jsr   GetChar
+gd0      sta   gotDigit
+         jsr   NextChar
          bcs   gd2
-         dec   maxDig
          bne   GetDigits
 gd1      clc
 gd2      rts
 ;
+;  CmpLetter - Compare character in A to a letter in Y, case-insensitively.
+;  Returns with C set if it matches, or clear if it does not. 
+;
+CmpLetter pha
+         tya
+         cmp   1,s
+         beq   cl1
+         ora   #$20
+         cmp   1,s
+         beq   cl1
+         clc
+cl1      pla
+         rts
+;
 ;  Local data
 ;
 disp     ds    2                        disp into ~str
-maxDig   ds    2                        max # of digits GetDigits can return
-read     ds    2                        # chars read
+gotDigit ds    2                        got a digit?
+hex      ds    2                        is this hex float format?
+
+nanascbin dc   c'nan(17)',i1'0'
          end

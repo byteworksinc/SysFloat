@@ -1,9 +1,4 @@
  MACRO
-&LAB BLE &BP
-&LAB BLT &BP
- BEQ &BP
- MEND
- MACRO
 &LAB LONG &A,&B
  LCLB &I
  LCLB &M
@@ -294,3 +289,13 @@
 &lab ldx #$090A
  jsl $E10000
  MEND
+ macro
+&l jcs &bp
+&l bcc *+5
+ brl &bp
+ mend
+ macro
+&l jcc &bp
+&l bcs *+5
+ brl &bp
+ mend
