@@ -399,11 +399,13 @@ FX2S_op  equ   $0210
          dec   ~scanWidth
 lb1      jsl   ~getchar                 skip leading whitespace...
          cmp   #EOF                     if at EOF then
-         bne   lb1a
-         dec   ~assignments                no assignment made
+         bne   lb1b
          sta   ~eofFound                   eofFound = EOF
-         brl   lb12                        bail out
-lb1a     tax                            ...back to skipping whitespace
+         lda   ~suppress                   if assignment is not suppressed then
+         bne   lb1a
+         dec   ~assignments                  no assignment made
+lb1a     brl   lb12                        bail out
+lb1b     tax                            ...back to skipping whitespace
          lda   __ctype+1,X
          and   #_space
          bne   lb1
@@ -551,7 +553,9 @@ lb9a     jsl   ~putback                 return the last char to the input stream
 lb10     lda   gotDigit                 if no digits read then
          bne   lb10good
 lb10err  inc   ~scanError                 ~scanError = true
-         dec   ~assignments               no assignment made
+         lda   ~suppress                  if assignment is not suppressed then
+         bne   lb12
+         dec   ~assignments                 no assignment made
          bra   lb12                       skip the save
 lb10good lda   ~suppress                quit if output is suppressed
          bne   lb13
