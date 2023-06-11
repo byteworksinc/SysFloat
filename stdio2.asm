@@ -83,9 +83,9 @@ cn0      lda   ~precisionSpecified      if the precision was not specified then
          lda   #7                         use a precision of 7-~style
          sec
          sbc   ~style
-         bra   cn2
+         bra   cn1a
 cn1      lda   ~precision
-cn2      sta   ~digits                  set the precision
+cn1a     sta   ~digits                  set the precision
 
          ph4   #~decForm                convert do a decimal record
          ph4   argp
@@ -95,8 +95,14 @@ cn2      sta   ~digits                  set the precision
          ph4   #~decRec
          ph4   #~str
          fdec2str
+         
+         lda   ~sig+1                   if number is Inf or NaN then
+         and   #$0040
+         beq   cn2
+         lda   #' '                       do not use '0' padding
+         sta   ~paddChar
 
-         lda   ~style                   if the format is exponential then
+cn2      lda   ~style                   if the format is exponential then
          bne   cn2a
          short I,M                        if the exponent has only one digit then
          ldx   ~str
