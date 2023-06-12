@@ -71,7 +71,8 @@ fl1      stz   ~style                   exponential format
 sn1      ldy   #8                       if the value is negative then
          lda   [argp],Y
          bpl   cn0
-         eor   #$8000                     reverse the sign
+         asl   a                          reverse the sign
+         lsr   a
          sta   [argp],Y
 sn2      lda   #'-'                       set the sign character
          sta   ~sign
@@ -99,7 +100,7 @@ cn1a     sta   ~digits                  set the precision
          lda   ~sig+1                   if number is Inf or NaN then
          and   #$0040
          beq   cn2
-         lda   #' '                       do not use '0' padding
+         lsr   a                          do not use '0' padding
          sta   ~paddChar
 
 cn2      lda   ~style                   if the format is exponential then
