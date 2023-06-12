@@ -75,7 +75,7 @@ sw1      lda   [str]                    skip leading whitespace
 sw2      inc4  str
          bra   sw1
 
-cn0      ph4   str                      try to scan str as a hex float string
+cn0      ph4   <str                     try to scan str as a hex float string
          jsl   ~HexStr2X
          lda   endPtr                   if it was a hex float string then
          ora   endPtr+2
@@ -87,7 +87,7 @@ cn0      ph4   str                      try to scan str as a hex float string
 
          brl   cn5                        return t1
 
-cn1      ph4   str                      convert from ascii to decform
+cn1      ph4   <str                     convert from ascii to decform
          ph4   #index
          ph4   #decrec
          ph4   #valid

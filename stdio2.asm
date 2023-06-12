@@ -89,7 +89,7 @@ cn1      lda   ~precision
 cn1a     sta   ~digits                  set the precision
 
          ph4   #~decForm                convert do a decimal record
-         ph4   argp
+         ph4   <argp
          ph4   #~decRec
          fx2dec
          ph4   #~decForm                convert to a string
@@ -338,7 +338,7 @@ cn1      lda   ~precision               if precision is 0 then
 cn2      sta   ~digits                  set the precision
          stz   ~style                   use exponential style for conversion
          ph4   #~decForm                convert do a decimal record
-         ph4   argp
+         ph4   <argp
          ph4   #~decRec
          fx2dec
 ;
@@ -574,7 +574,7 @@ dg1      ph4   #~str
 dg2      jsl   strtod
          phx                            convert and save
          pha
-         ph4   arg
+         ph4   <arg
          dec   ~size
          beq   lb11
          bmi   lb11a
