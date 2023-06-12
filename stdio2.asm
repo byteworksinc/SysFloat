@@ -347,8 +347,11 @@ cn2      sta   ~digits                  set the precision
          lda   ~altForm                 strip zeros?
          eor   #1
          sta   ~removeZeros
-         lda   ~sig                     if (exp < -4) or (exp >= ~precision) then
-         and   #$00FF
+         lda   ~sig                     if sig is '0' then
+         cmp   #1+'0'*256
+         bne   mf0
+         stz   ~exp                       set ~exp to zero
+mf0      and   #$00FF                   if (exp < -4) or (exp >= ~precision) then
          clc
          adc   ~exp
          dec   A
