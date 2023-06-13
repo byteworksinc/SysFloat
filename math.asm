@@ -679,42 +679,18 @@ fmod     start
          phy
          phx
 
-         lda   t2+8                     if t2 = 0 then
-         and   #$7FFF
-         ora   t2+6
-         ora   t2+4
-         ora   t2+2
-         ora   t2
-         jeq   lb1                        return t1
-
-         fgetenv                        set the rounding direction to round down
-         phx
-         txa
-         and   #$3FFF
-         ora   #$8000
-         pha
-         fsetenv
-         lda   t1+8                     get and save the sign of t1, setting t1
-         and   #$8000                     to abs(t1)
-         sta   sign
-         asl   t1+8
-         lsr   t1+8
          move  t1,t3,#10                t3 := t1/t2
          ph4   #t2
          ph4   #t3
          fdivx
-         ph4   #t3                      t3 := round(t3)
-         frintx
+         ph4   #t3                      t3 := trunc(t3)
+         ftintx
          ph4   #t2                      t3 = t3*t2
          ph4   #t3
          fmulx
          ph4   #t3                      t1 = t1-t3
          ph4   #t1
          fsubx
-         lda   t1+8                     restore the sign of t1
-         ora   sign
-         sta   t1+8
-         fsetenv                        restore the environment
 lb1      ldx   #^t1                     return a pointer to the result
          lda   #t1
          plb
