@@ -998,14 +998,19 @@ pow      start
          plb
          pla
          sta   t1
+         sta   orig
          pla
          sta   t1+2
+         sta   orig+2
          pla
          sta   t1+4
+         sta   orig+4
          pla
          sta   t1+6
+         sta   orig+6
          pla
          sta   t1+8
+         sta   orig+8
          pla
          sta   t2
          pla
@@ -1022,13 +1027,8 @@ pow      start
          ph4   #t2                      t1 := t1 ** t2
          ph4   #t1
          fxpwry
-         fgetenv                        check for a range error
-         txa
-         and   #$0D00
-         beq   lb1
-         lda   #ERANGE
-         sta   >errno
-lb1      ldx   #^t1                     return a pointer to the result
+         jsr   ~SetErrno2               check for a range error
+         ldx   #^t1                     return a pointer to the result
          lda   #t1
          plb
          rtl
@@ -1376,3 +1376,66 @@ inf      lda   orig+8                       if input value was not inf/nan then
 err      sta   >errno
 ret      rts
          end
+
+****************************************************************
+*
+*  ~SetErrno2 - set errno if needed based on two input values
+*               and an output value
+*
+*  Inputs:
+*        orig - first input value
+*        t2 - second input value
+*        t1 - output value
+*
+****************************************************************
+*
+~SetErrno2 private
+         using MathCommon
+
+         lda   t1+8                     if result is inf or nan then
+         asl   a
+         cmp   #32767*2
+         bne   ret
+         lda   t1+6                       if result is nan then
+         asl   a
+         ora   t1+4
+         ora   t1+2
+         ora   t1
+         beq   inf
+         lda   orig+8                       if neither input value was nan then
+         asl   a
+         cmp   #32767*2
+         bne   lb1
+         lda   orig+6
+         asl   a
+         ora   orig+4
+         ora   orig+2
+         ora   orig
+         bne   ret
+lb1      lda   t2+8
+         asl   a
+         cmp   #32767*2
+         bne   lb2
+         lda   t2+6
+         asl   a
+         ora   t2+4
+         ora   t2+2
+         ora   t2
+         bne   ret
+lb2      lda   #EDOM                          errno = EDOM
+         bra   err                        else if result is inf then
+
+inf      lda   orig+8                       if neither input value was inf/nan
+         asl   a                              then
+         cmp   #32767*2
+         beq   ret
+         lda   t2+8
+         asl   a
+         cmp   #32767*2
+         beq   ret
+         lda   #ERANGE                        errno = ERANGE
+
+err      sta   >errno
+ret      rts
+         end
+
