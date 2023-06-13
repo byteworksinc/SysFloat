@@ -44,6 +44,7 @@ t1       ds    10
 t2       ds    10
 t3       ds    10
 sign     ds    2
+orig     ds    10                       saved copy of input value
          end
 
 ****************************************************************
@@ -70,14 +71,19 @@ asin     start
          plb
          pla
          sta   t1
+         sta   orig
          pla
          sta   t1+2
+         sta   orig+2
          pla
          sta   t1+4
+         sta   orig+4
          pla
          sta   t1+6
+         sta   orig+6
          pla
          sta   t1+8
+         sta   orig+8
          phy
          phx
 ;
@@ -123,13 +129,8 @@ lb2      lda   #t3                      t3 := sqrt(t3)
          ph4   #t1                      t1 := atan(t1)
          fatanx
 
-lb3      fgetenv                        check for a domain error
-         txa
-         and   #$0100
-         beq   lb4
-         lda   #EDOM
-         sta   >errno
-lb4      ldx   #^t1                     return a pointer to the result
+lb3      jsr   ~SetErrno                check for a domain error
+         ldx   #^t1                     return a pointer to the result
          lda   #t1
          plb
          rtl
@@ -159,14 +160,19 @@ acos     start
          plb
          pla
          sta   t1
+         sta   orig
          pla
          sta   t1+2
+         sta   orig+2
          pla
          sta   t1+4
+         sta   orig+4
          pla
          sta   t1+6
+         sta   orig+6
          pla
          sta   t1+8
+         sta   orig+8
          phy
          phx
 ;
@@ -197,13 +203,8 @@ acos     start
          ph4   #t1
          fmulx
 
-         fgetenv                        check for a domain error
-         txa
-         and   #$0100
-         beq   lb1
-         lda   #EDOM
-         sta   >errno
-lb1      ldx   #^t1                     return a pointer to the result
+         jsr   ~SetErrno                check for a domain error
+         ldx   #^t1                     return a pointer to the result
          lda   #t1
          plb
          rtl
@@ -463,13 +464,18 @@ cosh     start
          plb
          pla
          sta   t1
+         sta   orig
          pla
          sta   t1+2
+         sta   orig+2
          pla
          sta   t1+4
+         sta   orig+4
          pla
          sta   t1+6
+         sta   orig+6
          pla
+         sta   orig+8
          and   #$7FFF                   (take the absolute value now)
          sta   t1+8
          phy
@@ -479,14 +485,7 @@ cosh     start
 ;
          ph4   #t1                      t1 := exp(abs(t1))
          fexpx
-         fgetenv                        check for a range error
-         txa
-         and   #$0500
-         beq   lb1
-         lda   #ERANGE
-         sta   >errno
-         bra   lb2
-lb1      ph4   #half                    t1 := t1*0.5
+         ph4   #half                    t1 := t1*0.5
          ph4   #t1
          fmulx
          move  quarter,t2,#10           t2 := 0.25
@@ -497,7 +496,8 @@ lb1      ph4   #half                    t1 := t1*0.5
          ph4   #t1
          faddx
 
-lb2      ldx   #^t1                     return a pointer to the result
+         jsr   ~SetErrno                check for a range error 
+         ldx   #^t1                     return a pointer to the result
          lda   #t1
          plb
          rtl
@@ -525,25 +525,25 @@ exp      start
          plb
          pla
          sta   t1
+         sta   orig
          pla
          sta   t1+2
+         sta   orig+2
          pla
          sta   t1+4
+         sta   orig+4
          pla
          sta   t1+6
+         sta   orig+6
          pla
          sta   t1+8
+         sta   orig+8
          phy
          phx
          ph4   #t1                      compute the exponent
          fexpx
-         fgetenv                        check for a range error
-         txa
-         and   #$0500
-         beq   lb1
-         lda   #ERANGE
-         sta   >errno
-lb1      ldx   #^t1                     return a pointer to the result
+         jsr   ~SetErrno                check for a range error 
+         ldx   #^t1                     return a pointer to the result
          lda   #t1
          plb
          rtl
@@ -839,24 +839,24 @@ log      start
          plb
          pla
          sta   t1
+         sta   orig
          pla
          sta   t1+2
+         sta   orig+2
          pla
          sta   t1+4
+         sta   orig+4
          pla
          sta   t1+6
+         sta   orig+6
          pla
          sta   t1+8
+         sta   orig+8
          phy
          phx
          ph4   #t1                      compute ln(x)
          flnx
-         fgetenv                        check for a domain error
-         txa
-         and   #$0100
-         beq   lb1
-         lda   #EDOM
-         sta   >errno
+         jsr   ~SetErrno                check for a domain or pole error 
 lb1      ldx   #^t1                     return a pointer to the result
          lda   #t1
          plb
@@ -885,27 +885,27 @@ log10    start
          plb
          pla
          sta   t1
+         sta   orig
          pla
          sta   t1+2
+         sta   orig+2
          pla
          sta   t1+4
+         sta   orig+4
          pla
          sta   t1+6
+         sta   orig+6
          pla
          sta   t1+8
+         sta   orig+8
          phy
          phx
          ph4   #t1                      compute ln(x)
          flnx
-         fgetenv                        check for a domain error
-         txa
-         and   #$0100
-         beq   lb1
-         lda   #EDOM
-         sta   >errno
-lb1      ph4   #ln10e                   convert from ln base e to log base 10
+         ph4   #ln10e                   convert from ln base e to log base 10
          ph4   #t1
          fmulx
+         jsr   ~SetErrno                check for a domain or pole error 
          ldx   #^t1                     return a pointer to the result
          lda   #t1
          plb
@@ -1098,14 +1098,19 @@ sinh     start
          plb
          pla
          sta   t1
+         sta   orig
          pla
          sta   t1+2
+         sta   orig+2
          pla
          sta   t1+4
+         sta   orig+4
          pla
          sta   t1+6
+         sta   orig+6
          pla
          sta   t1+8
+         sta   orig+8
          phy
          phx
 ;
@@ -1122,14 +1127,7 @@ sinh     start
          sty   t1+8
          ph4   #t1                      t1 := exp1(t1)
          fexp1x
-         fgetenv                        check for a range error
-         txa
-         and   #$0500
-         beq   lb1
-         lda   #ERANGE
-         sta   >errno
-         brl   lb2
-lb1      lda   t1                       t2 := t1
+         lda   t1                       t2 := t1
          sta   t2                       t3 := t1
          sta   t3
          lda   t1+2
@@ -1144,6 +1142,8 @@ lb1      lda   t1                       t2 := t1
          lda   t1+8
          sta   t2+8
          sta   t3+8
+         cmp   #32767                   if t1 is +inf or +nan then
+         beq   lb2                        skip remaining computations
          ph4   #one                     t3 := t3+1
          ph4   #t3
          faddx
@@ -1160,7 +1160,8 @@ lb1      lda   t1                       t2 := t1
          ora   t1+8
          sta   t1+8
 
-lb2      ldx   #^t1                     return a pointer to the result
+lb2      jsr   ~SetErrno                check for a range error
+         ldx   #^t1                     return a pointer to the result
          lda   #t1
          plb
          rtl
@@ -1188,25 +1189,25 @@ sqrt     start
          plb
          pla
          sta   t1
+         sta   orig
          pla
          sta   t1+2
+         sta   orig+2
          pla
          sta   t1+4
+         sta   orig+4
          pla
          sta   t1+6
+         sta   orig+6
          pla
          sta   t1+8
+         sta   orig+8
          phy
          phx
          ph4   #t1                      compute the square root
          fsqrtx
-         fgetenv                        check for a range error
-         txa
-         and   #$0500
-         beq   lb1
-         lda   #ERANGE
-         sta   >errno
-lb1      ldx   #^t1                     return a pointer to the result
+         jsr   ~SetErrno                check for a domain error
+         ldx   #^t1                     return a pointer to the result
          lda   #t1
          plb
          rtl
@@ -1234,24 +1235,24 @@ tan      start
          plb
          pla
          sta   t1
+         sta   orig
          pla
          sta   t1+2
+         sta   orig+2
          pla
          sta   t1+4
+         sta   orig+4
          pla
          sta   t1+6
+         sta   orig+6
          pla
          sta   t1+8
+         sta   orig+8
          phy
          phx
          ph4   #t1                      compute the tangent
          ftanx
-         fgetenv                        check for a range error
-         txa
-         and   #$0D00
-         beq   lb1
-         lda   #ERANGE
-         sta   >errno
+         jsr   ~SetErrno                check for a range error
 lb1      ldx   #^t1                     return a pointer to the result
          lda   #t1
          plb
@@ -1312,13 +1313,6 @@ tanh     start
          sta   t1+8
          ph4   #t1                      t1 := exp1(t1)
          fexp1x
-         fgetenv                        check for a range error
-         txa
-         and   #$0500
-         beq   lb1
-         lda   #ERANGE
-         sta   >errno
-         bra   lb2
 lb1      move  two,t2,#10               t2 := 2
          ph4   #t1                      t2 := t2+t1
          ph4   #t2
@@ -1335,4 +1329,50 @@ lb2      ldx   #^t1                     return a pointer to the result
          lda   #t1
          plb
          rtl
+         end
+
+****************************************************************
+*
+*  ~SetErrno - set errno if needed based on input and output values
+*
+*  Inputs:
+*        orig - input value
+*        t1 - output value
+*
+****************************************************************
+*
+~SetErrno private
+         using MathCommon
+
+         lda   t1+8                     if result is inf or nan then
+         asl   a
+         cmp   #32767*2
+         bne   ret
+         lda   t1+6                       if result is nan then
+         asl   a
+         ora   t1+4
+         ora   t1+2
+         ora   t1
+         beq   inf
+         lda   orig+8                       if input value was not nan then
+         asl   a
+         cmp   #32767*2
+         bne   lb1
+         lda   orig+6
+         asl   a
+         ora   orig+4
+         ora   orig+2
+         ora   orig
+         bne   ret
+lb1      lda   #EDOM                          errno = EDOM
+         bra   err                        else if result is inf then
+
+inf      lda   orig+8                       if input value was not inf/nan then
+         asl   a
+         cmp   #32767*2
+         beq   ret
+         lda   #ERANGE                        errno = ERANGE
+
+err      sta   >errno
+ret      rts
          end
