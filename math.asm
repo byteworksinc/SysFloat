@@ -1143,7 +1143,7 @@ sinh     start
          sta   t2+8
          sta   t3+8
          cmp   #32767                   if t1 is +inf or +nan then
-         beq   lb2                        skip remaining computations
+         beq   lb1                        skip to setting sign
          ph4   #one                     t3 := t3+1
          ph4   #t3
          faddx
@@ -1156,7 +1156,7 @@ sinh     start
          ph4   #half                    t1 := t1*0.5
          ph4   #t1
          fmulx
-         lda   sign                     t1 := t1*sign
+lb1      lda   sign                     t1 := t1*sign
          ora   t1+8
          sta   t1+8
 
