@@ -912,12 +912,6 @@ modf     start
          phk
          plb
 
-         fgetenv                        set the rounding direction to round
-         phx                             towards 0
-         txa
-         ora   #$C000
-         pha
-         fsetenv
          ldx   #8                       t1 := x
 lb1      lda   x,X                      t2 := x
          sta   t1,X
@@ -925,21 +919,14 @@ lb1      lda   x,X                      t2 := x
          dex
          dex
          bpl   lb1
-         ph4   #t2                      t2 := round(t2)
-         frintx
-         fsetenv                        restore the environment
+         ph4   #t2                      t2 := trunc(t2)
+         ftintx
          ph4   #t2                      t1 := t1-t2
          ph4   #t1
          fsubx
          ph4   #t2                      convert t2 to a double
          ph4   #t3
          fx2d
-         fgetenv                        check for a range error
-         txa
-         and   #$0D00
-         beq   lb2
-         lda   #ERANGE
-         sta   >errno
 lb2      ldy   #6
 lb3      lda   t3,Y                     return the integer part
          sta   [nptr],Y
