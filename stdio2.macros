@@ -312,3 +312,19 @@
 &l bcs *+5
  brl &bp
  mend
+ MACRO
+&LAB _INT2DEC
+&LAB LDX #$260B
+ JSL $E10000
+ MEND
+ MACRO
+&LAB FGETENV
+&LAB PEA $03
+ LDX #$090A
+ JSL $E10000
+ MEND
+ macro
+&l jge &bp
+&l blt *+5
+ brl &bp
+ mend

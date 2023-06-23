@@ -4,7 +4,7 @@
 unset exit
 
 if {#} == 0
-   for i in fp math stdio2 stdlib time
+   for i in fp math stdio2 stdlib time fenv fpextra math2 int64
       Newer obj/{i}.a {i}.asm
       if {Status} != 0
          set exit on
@@ -23,7 +23,8 @@ end
 echo delete SysFloat
 delete SysFloat
 
-set list        fp.a math.a stdio2.a stdlib.a time.a
+set list        fp.a math.a stdio2.a stdlib.a time.a fenv.a fpextra.a math2.a
+set list {list} int64.a
 for i in {list}
    echo makelib SysFloat +obj/{i}
    makelib SysFloat +obj/{i}

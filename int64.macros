@@ -1,0 +1,70 @@
+ macro
+&l negate8 &n1
+&l ~setm
+ sec
+ ldy #0
+ tya
+ sbc &n1
+ sta &n1
+ tya
+ sbc &n1+2
+ sta &n1+2
+ tya
+ sbc &n1+4
+ sta &n1+4
+ tya
+ sbc &n1+6
+ sta &n1+6
+ ~restm
+ mend
+ macro
+&l ~restm
+&l anop
+ aif (&~la+&~li)=2,.i
+ sep #32*(.not.&~la)+16*(.not.&~li)
+ aif &~la,.h
+ longa off
+.h
+ aif &~li,.i
+ longi off
+.i
+ mend
+ macro
+&l ~setm
+&l anop
+ aif c:&~la,.b
+ gblb &~la
+ gblb &~li
+.b
+&~la setb s:longa
+&~li setb s:longi
+ aif s:longa.and.s:longi,.a
+ rep #32*(.not.&~la)+16*(.not.&~li)
+ longa on
+ longi on
+.a
+ mend
+ MACRO
+&LAB FTINTX
+&LAB PEA $0016
+ LDX #$090A
+ JSL $E10000
+ MEND
+ MACRO
+&LAB FX2C
+&LAB PEA $0510
+ LDX #$090A
+ JSL $E10000
+ MEND
+ MACRO
+&LAB FCPXX
+&LAB PEA $0A
+ LDX #$090A
+ JSL $E10000
+ MEND
+ MACRO
+&LAB FSUBX
+&LAB PEA 2
+ LDX #$090A
+ JSL $E10000
+ MEND
