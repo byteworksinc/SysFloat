@@ -48,6 +48,17 @@ SetFPESlot start
 
 ****************************************************************
 *
+*  ~InitFloat - Initialize floating-point libraries (no-op)
+*
+****************************************************************
+*
+~InitFloat start
+
+         rtl
+         end
+
+****************************************************************
+*
 *  ~AddE - Add two SANE extended numbers
 *
 *  Inputs:
