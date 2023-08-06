@@ -1,0 +1,8 @@
+filetype -p =.asm src; change -p =.asm asm65816
+filetype -p =.macros src; change -p =.macros asm65816
+filetype fptest.cc src; change fptest.cc cc
+filetype fptest.pas src; change fptest.pas pascal
+filetype make src; change make exec
+filetype settypes src; change settypes exec
+filetype LICENSE txt
+filetype obj:README.txt txt
