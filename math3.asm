@@ -25,6 +25,15 @@ UPWARD     gequ 1
 DOWNWARD   gequ 2 
 TOWARDZERO gequ 3
 
+EXTENDED_PRECISION gequ 0               rounding precisions
+DOUBLE_PRECISION   gequ 1
+SINGLE_PRECISION   gequ 2
+
+FADDX_OPWORD gequ $0000                 opwords for certain SANE operations
+FSUBX_OPWORD gequ $0002
+FMULX_OPWORD gequ $0004
+FDIVX_OPWORD gequ $0006
+
 ****************************************************************
 *
 *  MathCommon3 - common work areas for the math library
@@ -36,6 +45,237 @@ MathCommon3 privdata
 ;  temporary work space/return value
 ;
 t1       ds    10
+         end
+
+****************************************************************
+*
+*  float fadd(double x, double y);
+*
+*  Returns x+y, rounded to float precision.
+*
+****************************************************************
+*
+fadd     start
+faddl    entry
+         lda   #FADDX_OPWORD
+         ldx   #SINGLE_PRECISION*$40
+         jmp   ~NarrowingBinop
+         end
+
+****************************************************************
+*
+*  double daddl(long double x, long double y);
+*
+*  Returns x+y, rounded to double precision.
+*
+****************************************************************
+*
+daddl    start
+         lda   #FADDX_OPWORD
+         ldx   #DOUBLE_PRECISION*$40
+         jmp   ~NarrowingBinop
+         end
+
+****************************************************************
+*
+*  float fsub(double x, double y);
+*
+*  Returns x-y, rounded to float precision.
+*
+****************************************************************
+*
+fsub     start
+fsubl    entry
+         lda   #FSUBX_OPWORD
+         ldx   #SINGLE_PRECISION*$40
+         jmp   ~NarrowingBinop
+         end
+
+****************************************************************
+*
+*  double dsubl(long double x, long double y);
+*
+*  Returns x-y, rounded to double precision.
+*
+****************************************************************
+*
+dsubl    start
+         lda   #FSUBX_OPWORD
+         ldx   #DOUBLE_PRECISION*$40
+         jmp   ~NarrowingBinop
+         end
+
+****************************************************************
+*
+*  float fmul(double x, double y);
+*
+*  Returns x*y, rounded to float precision.
+*
+****************************************************************
+*
+fmul     start
+fmull    entry
+         lda   #FMULX_OPWORD
+         ldx   #SINGLE_PRECISION*$40
+         jmp   ~NarrowingBinop
+         end
+
+****************************************************************
+*
+*  double dmull(long double x, long double y);
+*
+*  Returns x*y, rounded to double precision.
+*
+****************************************************************
+*
+dmull    start
+         lda   #FMULX_OPWORD
+         ldx   #DOUBLE_PRECISION*$40
+         jmp   ~NarrowingBinop
+         end
+
+****************************************************************
+*
+*  float fdiv(double x, double y);
+*
+*  Returns x/y, rounded to float precision.
+*
+****************************************************************
+*
+fdiv     start
+fdivl    entry
+         lda   #FDIVX_OPWORD
+         ldx   #SINGLE_PRECISION*$40
+         jmp   ~NarrowingBinop
+         end
+
+****************************************************************
+*
+*  double ddivl(long double x, long double y);
+*
+*  Returns x/y, rounded to double precision.
+*
+****************************************************************
+*
+ddivl    start
+         lda   #FDIVX_OPWORD
+         ldx   #DOUBLE_PRECISION*$40
+         jmp   ~NarrowingBinop
+         end
+
+****************************************************************
+*
+*  ~NarrrowingBinop
+*
+*  Do a binary operation, rounding to a narrower result type.
+*
+*  Inputs:
+*       Two extended operands on stack
+*       A - Opword for the binary operation (+, -, *, /)
+*       X - Rounding precision, to be or'd into environment word
+*
+****************************************************************
+*
+~NarrowingBinop private
+         using MathCommon3
+
+         sta   >opword
+         txa
+         sta   >precision
+
+         csubroutine (10:x,10:y),0
+
+         FGETENV
+         phx                            save original environment
+         txa
+         and   #$E020                   clear halts, exceptions, precision
+         ora   >precision               set rounding precision
+         pha
+         FSETENV
+
+         lda   x                        copy x to t1
+         sta   >t1
+         lda   x+2
+         sta   >t1+2
+         lda   x+4
+         sta   >t1+4
+         lda   x+6
+         sta   >t1+6
+         lda   x+8
+         sta   >t1+8
+
+         tdc                            t1 = t1 OP y
+         clc
+         adc   #y
+         pea   0
+         pha
+         ph4   #t1
+         lda   >opword
+         pha
+         _SANEFP816
+
+         FPROCEXIT                      restore env & raise any new exceptions
+
+         creturn 10:t1                  return t1
+
+opword   ds    2
+precision ds   2
+         end
+
+****************************************************************
+*
+*  double fsqrt(double x);
+*
+*  Returns sqrt(x), rounded to single precision.
+*
+*  double dsqrtl(long double x);
+*
+*  Returns sqrt(x), rounded to double precision.
+*
+****************************************************************
+*
+fsqrt    start
+fsqrtl   entry
+         using MathCommon3
+
+         lda   #SINGLE_PRECISION*$40
+         bra   lb1
+         
+dsqrtl   entry
+         lda   #DOUBLE_PRECISION*$40
+
+lb1      sta   >precision
+
+         csubroutine (10:x),0
+
+         FGETENV
+         phx                            save original environment
+         txa
+         and   #$E020                   clear halts, exceptions, precision
+         ora   >precision               set rounding precision
+         pha
+         FSETENV
+
+         lda   x                        copy x to t1
+         sta   >t1
+         lda   x+2
+         sta   >t1+2
+         lda   x+4
+         sta   >t1+4
+         lda   x+6
+         sta   >t1+6
+         lda   x+8
+         sta   >t1+8
+
+         ph4   #t1                      t1 = sqrt(t1)
+         FSQRTX
+
+         FPROCEXIT                      restore env & raise any new exceptions
+
+         creturn 10:t1                  return t1
+
+opword   ds    2
+precision ds   2
          end
 
 ****************************************************************
