@@ -332,3 +332,75 @@ do_logb  tdc                            compute logb(x)
          
 ret      creturn 4:x                    return it
          end
+
+****************************************************************
+*
+*  double pown(double x, long long int n);
+*
+*  Returns x^n.
+*
+****************************************************************
+*
+pown     start
+pownf    entry
+pownl    entry
+         using MathCommon3
+
+         csubroutine (10:x,8:n),0
+
+         phb
+         phk
+         plb
+
+         lda   n+6                      if n == LLONG_MIN
+         bpl   use_fc2x
+         asl   a
+         ora   n
+         ora   n+2
+         ora   n+4
+         bne   use_fc2x
+
+         lda   llmin                      t1 = LLONG_MIN
+         sta   t1
+         lda   llmin+2
+         sta   t1+2
+         lda   llmin+4
+         sta   t1+4
+         lda   llmin+6
+         sta   t1+6
+         lda   llmin+8
+         sta   t1+8
+         bra   do_pwr                   else
+
+use_fc2x tdc                              t1 = n (treated as comp)
+         clc
+         adc   #n
+         pea   0
+         pha
+         ph4   #t1
+         FC2X
+
+do_pwr   ph4   #t1                      x = x ^ t1
+         tdc
+         clc
+         adc   #x
+         pea   0
+         pha
+         FXPWRY
+
+         lda   x                        copy x to t1
+         sta   t1
+         lda   x+2
+         sta   t1+2
+         lda   x+4
+         sta   t1+4
+         lda   x+6
+         sta   t1+6
+         lda   x+8
+         sta   t1+8
+
+         plb
+         creturn 10:t1                  return t1
+
+llmin    dc    e'-9223372036854775808'  LLONG_MIN in extended format
+         end
