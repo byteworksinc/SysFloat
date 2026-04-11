@@ -49,6 +49,68 @@ t1       ds    10
 
 ****************************************************************
 *
+*  double compoundn(double x, long long int n);
+*
+*  Returns (1+x)^n (defined for x >= -1).
+*
+****************************************************************
+*
+compoundn start
+compoundnf entry
+compoundnl entry
+         using MathCommon3
+
+         csubroutine (10:x,8:n),0
+
+         phb
+         phk
+         plb
+
+         lda   n+6                      if n == LLONG_MIN
+         bpl   use_fc2x
+         asl   a
+         ora   n
+         ora   n+2
+         ora   n+4
+         bne   use_fc2x
+
+         lda   llmin                      t1 = LLONG_MIN
+         sta   t1
+         lda   llmin+2
+         sta   t1+2
+         lda   llmin+4
+         sta   t1+4
+         lda   llmin+6
+         sta   t1+6
+         lda   llmin+8
+         sta   t1+8
+         bra   do_cmpnd                 else
+
+use_fc2x tdc                              t1 = n (treated as comp)
+         clc
+         adc   #n
+         pea   0
+         pha
+         ph4   #t1
+         FC2X
+
+do_cmpnd tdc                            t1 = (1 + x) ^ n
+         clc
+         adc   #x
+         pea   0
+         pha
+         ph4   #t1
+         ph4   #t1
+         FCOMPOUND
+
+         plb
+         creturn 10:t1                  return t1
+
+llmin    dc    e'-9223372036854775808'  LLONG_MIN in extended format
+         end
+
+****************************************************************
+*
 *  float fadd(double x, double y);
 *
 *  Returns x+y, rounded to float precision.
