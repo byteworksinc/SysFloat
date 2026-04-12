@@ -397,6 +397,21 @@ ret      creturn 4:x                    return it
 
 ****************************************************************
 *
+*  double logp1(double x);
+*
+*  Returns ln(1+x).
+*
+****************************************************************
+*
+logp1    start
+logp1f   entry
+logp1l   entry
+
+         jml   log1p
+         end
+
+****************************************************************
+*
 *  double pown(double x, long long int n);
 *
 *  Returns x^n.
