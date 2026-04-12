@@ -397,6 +397,46 @@ ret      creturn 4:x                    return it
 
 ****************************************************************
 *
+*  double log2p1(double x);
+*
+*  Returns log2(1+x).
+*
+****************************************************************
+*
+log2p1   start
+log2p1f  entry
+log2p1l  entry
+         using MathCommon3
+
+         phb                            place the number in a work area
+         plx
+         ply
+         phk
+         plb
+         pla
+         sta   t1
+         pla
+         sta   t1+2
+         pla
+         sta   t1+4
+         pla
+         sta   t1+6
+         pla
+         sta   t1+8
+         phy
+         phx
+         plb
+
+         ph4   #t1                      compute the value
+         FLOG21X
+         
+         ldx   #^t1                     return a pointer to the result
+         lda   #t1
+         rtl
+         end
+
+****************************************************************
+*
 *  double logp1(double x);
 *
 *  Returns ln(1+x).
