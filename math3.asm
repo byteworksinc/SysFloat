@@ -111,6 +111,50 @@ llmin    dc    e'-9223372036854775808'  LLONG_MIN in extended format
 
 ****************************************************************
 *
+*  double exp10(double x);
+*
+*  Returns 10^x.
+*
+****************************************************************
+*
+exp10    start
+exp10f   entry
+exp10l   entry
+         using MathCommon3
+
+         csubroutine (10:x),0
+
+         phb
+         phk
+         plb
+
+         lda   ten                      t1 = 10
+         sta   t1
+         lda   ten+2
+         sta   t1+2
+         lda   ten+4
+         sta   t1+4
+         lda   ten+6
+         sta   t1+6
+         lda   ten+8
+         sta   t1+8
+
+         tdc                            t1 = 10 ^ x
+         clc
+         adc   #x
+         pea   0
+         pha
+         ph4   #t1
+         FXPWRY
+
+         plb
+         creturn 10:t1                  return t1
+
+ten      dc    e'10'
+         end
+
+****************************************************************
+*
 *  float fadd(double x, double y);
 *
 *  Returns x+y, rounded to float precision.
