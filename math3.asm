@@ -155,6 +155,43 @@ ten      dc    e'10'
 
 ****************************************************************
 *
+*  double exp2m1(double x);
+*
+*  Returns 2^x - 1.
+*
+****************************************************************
+*
+exp2m1   start
+exp2m1f  entry
+exp2m1l  entry
+         using MathCommon3
+
+         csubroutine (10:x),0
+
+         phb
+         phk
+         plb
+
+         lda   x                        copy x to t1
+         sta   t1
+         lda   x+2
+         sta   t1+2
+         lda   x+4
+         sta   t1+4
+         lda   x+6
+         sta   t1+6
+         lda   x+8
+         sta   t1+8
+
+         ph4   #t1                      t1 = 2^x - 1
+         FEXP21X
+
+         plb
+         creturn 10:t1                  return t1
+         end
+
+****************************************************************
+*
 *  float fadd(double x, double y);
 *
 *  Returns x+y, rounded to float precision.
