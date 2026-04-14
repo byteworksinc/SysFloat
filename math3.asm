@@ -521,6 +521,52 @@ ret      creturn 4:x                    return it
 
 ****************************************************************
 *
+*  double log10p1(double x);
+*
+*  Returns log10(1+x).
+*
+****************************************************************
+*
+log10p1  start
+log10p1f entry
+log10p1l entry
+         using MathCommon3
+
+         phb                            place the number in a work area
+         plx
+         ply
+         phk
+         plb
+         pla
+         sta   t1
+         pla
+         sta   t1+2
+         pla
+         sta   t1+4
+         pla
+         sta   t1+6
+         pla
+         sta   t1+8
+         phy
+         phx
+         plb
+
+         ph4   #t1                      t1 = log2(1+x)
+         FLOG21X
+
+         ph4   #log2_10                 t1 = log2(1+x) / log2(10)
+         ph4   #t1
+         FDIVX
+         
+         ldx   #^t1                     return a pointer to the result
+         lda   #t1
+         rtl
+
+log2_10  dc    e'3.32192809488736234787031942948939017586483139302458'
+         end
+
+****************************************************************
+*
 *  double log2p1(double x);
 *
 *  Returns log2(1+x).
