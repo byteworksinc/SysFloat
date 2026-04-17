@@ -691,3 +691,54 @@ do_pwr   ph4   #t1                      x = x ^ t1
 
 llmin    dc    e'-9223372036854775808'  LLONG_MIN in extended format
          end
+
+****************************************************************
+*
+*  double rsqrt(double x);
+*
+*  Returns 1/sqrt(x).
+*
+****************************************************************
+*
+rsqrt    start
+rsqrtf   entry
+rsqrtl   entry
+         using MathCommon3
+
+         csubroutine (10:x),0
+
+         phb
+         phk
+         plb
+
+         tdc                            x = sqrt(x)
+         clc
+         adc   #x
+         pea   0
+         pha
+         FSQRTX
+
+         lda   one                      set t1 to 1
+         sta   t1
+         lda   one+2
+         sta   t1+2
+         lda   one+4
+         sta   t1+4
+         lda   one+6
+         sta   t1+6
+         lda   one+8
+         sta   t1+8
+
+         tdc                            t1 = 1 / x
+         clc
+         adc   #x
+         pea   0
+         pha
+         ph4   #t1
+         FDIVX
+
+         plb
+         creturn 10:t1                  return t1
+
+one      dc    e'1'
+         end
