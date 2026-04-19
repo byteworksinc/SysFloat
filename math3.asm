@@ -312,6 +312,56 @@ llmin    dc    e'-9223372036854775808'  LLONG_MIN in extended format
 
 ****************************************************************
 *
+*  double cospi(double x);
+*
+*  Computes cos(x * pi)
+*
+****************************************************************
+*
+cospi    start
+cospif   entry
+cospil   entry
+         using MathCommon3
+
+         phb                            place the number in a work area
+         plx
+         ply
+         phk
+         plb
+         pla
+         sta   t1
+         pla
+         sta   t1+2
+         pla
+         sta   t1+4
+         pla
+         sta   t1+6
+         pla
+         sta   t1+8
+         phy
+         phx
+
+         ph4   #two                     divide by 2 and take remainder (-1..1)
+         ph4   #t1
+         FREMI
+
+         ph4   #pi                      multiply by pi
+         ph4   #t1
+         FMULX
+
+         ph4   #t1                      compute the cosine
+         FCOSX
+
+         ldx   #^t1                     return a pointer to the result
+         lda   #t1
+         plb
+         rtl
+
+two      dc    i2'2'
+         end
+
+****************************************************************
+*
 *  double exp10(double x);
 *
 *  Returns 10^x.
@@ -942,4 +992,104 @@ rsqrtl   entry
          creturn 10:t1                  return t1
 
 one      dc    e'1'
+         end
+
+****************************************************************
+*
+*  double sinpi(double x);
+*
+*  Computes sin(x * pi)
+*
+****************************************************************
+*
+sinpi    start
+sinpif   entry
+sinpil   entry
+         using MathCommon3
+
+         phb                            place the number in a work area
+         plx
+         ply
+         phk
+         plb
+         pla
+         sta   t1
+         pla
+         sta   t1+2
+         pla
+         sta   t1+4
+         pla
+         sta   t1+6
+         pla
+         sta   t1+8
+         phy
+         phx
+
+         ph4   #two                     divide by 2 and take remainder (-1..1)
+         ph4   #t1
+         FREMI
+
+         ph4   #pi                      multiply by pi
+         ph4   #t1
+         FMULX
+
+         ph4   #t1                      compute the sine
+         FSINX
+
+         ldx   #^t1                     return a pointer to the result
+         lda   #t1
+         plb
+         rtl
+
+two      dc    i2'2'
+         end
+
+****************************************************************
+*
+*  double tanpi(double x);
+*
+*  Computes tan(x * pi)
+*
+****************************************************************
+*
+tanpi    start
+tanpif   entry
+tanpil   entry
+         using MathCommon3
+
+         phb                            place the number in a work area
+         plx
+         ply
+         phk
+         plb
+         pla
+         sta   t1
+         pla
+         sta   t1+2
+         pla
+         sta   t1+4
+         pla
+         sta   t1+6
+         pla
+         sta   t1+8
+         phy
+         phx
+
+         ph4   #one                     divide by 1 and take remainder
+         ph4   #t1                        (-0.5..+0.5)
+         FREMI
+
+         ph4   #pi                      multiply by pi
+         ph4   #t1
+         FMULX
+
+         ph4   #t1                      compute the tangent
+         FTANX
+
+         ldx   #^t1                     return a pointer to the result
+         lda   #t1
+         plb
+         rtl
+
+one      dc    i2'1'
          end
