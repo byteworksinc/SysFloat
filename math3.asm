@@ -42,9 +42,210 @@ FDIVX_OPWORD gequ $0006
 *
 MathCommon3 privdata
 ;
+;  constant
+;
+pi       dc    h'35C2 6821 A2DA 0FC9 0040'
+;
 ;  temporary work space/return value
 ;
 t1       ds    10
+         end
+
+****************************************************************
+*
+*  double acospi(double x);
+*
+*  Computes acos(x)/pi.
+*
+****************************************************************
+*
+acospi   start
+acospif  entry
+acospil  entry
+         using MathCommon3
+
+         csubroutine (10:x),0
+
+         pei   (x+8)                    compute acos(x)
+         pei   (x+6)
+         pei   (x+4)
+         pei   (x+2)
+         pei   (x)
+         jsl   acos
+         sta   x
+         stx   x+2
+
+         ldy   #8                       copy result to t1
+         lda   [x],y
+         sta   >t1+8
+         dey
+         dey
+         lda   [x],y
+         sta   >t1+6
+         dey
+         dey
+         lda   [x],y
+         sta   >t1+4
+         dey
+         dey
+         lda   [x],y
+         sta   >t1+2
+         lda   [x]
+         sta   >t1
+
+         ph4   #pi                      divide by pi
+         ph4   #t1
+         FDIVX
+
+         creturn 10:t1                  return t1
+         end
+
+****************************************************************
+*
+*  double asinpi(double x);
+*
+*  Computes asin(x)/pi.
+*
+****************************************************************
+*
+asinpi   start
+asinpif  entry
+asinpil  entry
+         using MathCommon3
+
+         csubroutine (10:x),0
+
+         pei   (x+8)                    compute asin(x)
+         pei   (x+6)
+         pei   (x+4)
+         pei   (x+2)
+         pei   (x)
+         jsl   asin
+         sta   x
+         stx   x+2
+
+         ldy   #8                       copy result to t1
+         lda   [x],y
+         sta   >t1+8
+         dey
+         dey
+         lda   [x],y
+         sta   >t1+6
+         dey
+         dey
+         lda   [x],y
+         sta   >t1+4
+         dey
+         dey
+         lda   [x],y
+         sta   >t1+2
+         lda   [x]
+         sta   >t1
+
+         ph4   #pi                      divide by pi
+         ph4   #t1
+         FDIVX
+
+         creturn 10:t1                  return t1
+         end
+
+****************************************************************
+*
+*  double atan2pi(double y, double x);
+*
+*  Computes atan2(y,x)/pi.
+*
+****************************************************************
+*
+atan2pi  start
+atan2pif entry
+atan2pil entry
+         using MathCommon3
+
+         csubroutine (10:y,10:x),0
+
+         pei   (x+8)                    compute atan2(y,x)
+         pei   (x+6)
+         pei   (x+4)
+         pei   (x+2)
+         pei   (x)
+         pei   (y+8)
+         pei   (y+6)
+         pei   (y+4)
+         pei   (y+2)
+         pei   (y)
+         jsl   atan2
+         sta   x
+         stx   x+2
+
+         ldy   #8                       copy result to t1
+         lda   [x],y
+         sta   >t1+8
+         dey
+         dey
+         lda   [x],y
+         sta   >t1+6
+         dey
+         dey
+         lda   [x],y
+         sta   >t1+4
+         dey
+         dey
+         lda   [x],y
+         sta   >t1+2
+         lda   [x]
+         sta   >t1
+
+         ph4   #pi                      divide by pi
+         ph4   #t1
+         FDIVX
+
+         creturn 10:t1                  return t1
+         end
+
+****************************************************************
+*
+*  atanpi - return arctan(x)/pi
+*
+*  Inputs:
+*        stack - extended number
+*
+*  Outputs:
+*        X-A - addr of the result
+*
+****************************************************************
+*
+atanpi   start
+atanpif  entry
+atanpil  entry
+         using MathCommon3
+
+         phb                            place the number in a work area
+         plx
+         ply
+         phk
+         plb
+         pla
+         sta   t1
+         pla
+         sta   t1+2
+         pla
+         sta   t1+4
+         pla
+         sta   t1+6
+         pla
+         sta   t1+8
+         phy
+         phx
+         ph4   #t1                      compute the arc tangent
+         FATANX
+         ph4   #pi                      divide by pi
+         ph4   #t1
+         FDIVX
+         ldx   #^t1                     return a pointer to the result
+         lda   #t1
+         plb
+         rtl
          end
 
 ****************************************************************
