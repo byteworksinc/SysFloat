@@ -945,6 +945,55 @@ llmin    dc    e'-9223372036854775808'  LLONG_MIN in extended format
 
 ****************************************************************
 *
+*  roundeven - round to nearest integer, halfway cases to even
+*
+*  Inputs:
+*        stack - extended number
+*
+*  Outputs:
+*        X-A - addr of the result
+*
+****************************************************************
+*
+roundeven start
+roundevenf entry
+roundevenl entry
+         using MathCommon3
+
+         phb                            place the number in a work area
+         plx
+         ply
+         phk
+         plb
+         pla
+         sta   t1
+         pla
+         sta   t1+2
+         pla
+         sta   t1+4
+         pla
+         sta   t1+6
+         pla
+         sta   t1+8
+         phy
+         phx
+         pha                            save env & set to default
+         tsc                              (including to-nearest rounding)
+         inc   a
+         pea   0
+         pha
+         FPROCENTRY
+         ph4   #t1
+         FRINTX                         round the number
+         FPROCEXIT                      restore env & raise any new exceptions
+         ldx   #^t1                     return a pointer to the result
+         lda   #t1
+         plb
+         rtl
+         end
+
+****************************************************************
+*
 *  double rsqrt(double x);
 *
 *  Returns 1/sqrt(x).
