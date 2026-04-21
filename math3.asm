@@ -873,6 +873,123 @@ logp1l   entry
 
 ****************************************************************
 *
+*  double nextdown(double x);
+*  float nextdownf(float x);
+*  long double nextdownl(long double x);
+*  double nextup(double x);
+*  float nextupf(float x);
+*  long double nextupl(long double x);
+*
+*  Returns next representable value below/above x in given type.
+*
+****************************************************************
+*
+nextup   start
+         using MathCommon3
+
+         lda   #DOUBLE_PRECISION*$40+UPWARD*$4000
+         bra   nextupdn
+
+nextupf  entry
+         lda   #SINGLE_PRECISION*$40+UPWARD*$4000
+         bra   nextupdn
+
+nextupl  entry
+         lda   #EXTENDED_PRECISION*$40+UPWARD*$4000
+         bra   nextupdn
+
+nextdown entry
+         lda   #DOUBLE_PRECISION*$40+DOWNWARD*$4000
+         bra   nextupdn
+
+nextdownf entry
+         lda   #SINGLE_PRECISION*$40+DOWNWARD*$4000
+         bra   nextupdn
+
+nextdownl entry
+         lda   #EXTENDED_PRECISION*$40+DOWNWARD*$4000
+
+nextupdn sta   >envword
+
+         csubroutine (10:x),0
+         
+         phb
+         phk
+         plb
+
+         FGETENV                        save original environment
+         phx
+         lda   envword                  set rounding direction and precision
+         pha
+         FSETENV
+
+         lda   x+6                      if input is inf ...
+         asl   a
+         ora   x
+         ora   x+2
+         ora   x+4
+         bne   lb0
+         lda   envword
+         ora   #$7fff
+         eor   x+8
+         asl   a
+         bne   lb0
+         bcc   lb0                      ... and its sign <> rounding dir then
+      
+         dec   a                          x = largest finite value with same sign
+         sta   x
+         sta   x+2
+         sta   x+4
+         sta   x+6
+         asl   x+8
+         ror   a
+         dec   a
+         sta   x+8
+         lda   #0                         t1 = 0
+         bra   lb0a                     else
+
+lb0      lda   #1                         t1 = smallest nonzero value
+
+lb0a     sta   t1
+         stz   t1+2
+         stz   t1+4
+         stz   t1+6
+         asl   envword                  sign of t1 = rounding dir
+         ror   a
+         sta   t1+8
+
+         tdc                            t1 = x + t1
+         clc                              (with rounding as set above)
+         adc   #x
+         pea   0
+         pha
+         ph4   #t1
+         FADDX
+         
+         lda   t1                       if result is 0 (or possibly inf) then
+         ora   t1+2
+         ora   t1+4
+         ora   t1+6
+         bne   lb1
+         asl   t1+8                       set sign to match input
+         asl   x+8
+         ror   t1+8
+         
+lb1      FGETENV                        clear any exception except invalid
+         txa
+         and   #$0100
+         pha
+         FSETENV
+
+         FPROCEXIT                      restore env & possibly signal invalid
+         plb
+         creturn 10:t1                  return t1
+
+envword  ds    2
+         end
+
+****************************************************************
+*
 *  double pown(double x, long long int n);
 *
 *  Returns x^n.
