@@ -250,6 +250,79 @@ atanpil  entry
 
 ****************************************************************
 *
+*  int canonicalize(double *cx, const double *x);
+*
+*  Stores a canonical version of *x in *cx.
+*  Returns 0 to indicate success.
+*
+****************************************************************
+*
+canonicalize start
+         using MathCommon3
+
+         csubroutine (4:cx,4:x),0
+
+         ph4   <x
+         ph4   #t1
+         FD2X
+
+         ph4   #t1
+         ph4   <cx
+         FX2D
+         
+         stz   cx
+         creturn 2:cx
+         end
+
+****************************************************************
+*
+*  int canonicalizef(float *cx, const float *x);
+*
+*  Stores a canonical version of *x in *cx.
+*  Returns 0 to indicate success.
+*
+****************************************************************
+*
+canonicalizef start
+         using MathCommon3
+
+         csubroutine (4:cx,4:x),0
+
+         ph4   <x
+         ph4   #t1
+         FS2X
+
+         ph4   #t1
+         ph4   <cx
+         FX2S
+         
+         stz   cx
+         creturn 2:cx
+         end
+
+****************************************************************
+*
+*  int canonicalizel(long double *cx, const long double *x);
+*
+*  Stores a canonical version of *x in *cx.
+*  Returns 0 to indicate success.
+*
+****************************************************************
+*
+canonicalizel start
+
+         csubroutine (4:cx,4:x),0
+
+         ph4   <x
+         ph4   <cx
+         FX2X
+         
+         stz   cx
+         creturn 2:cx
+         end
+
+****************************************************************
+*
 *  double compoundn(double x, long long int n);
 *
 *  Returns (1+x)^n (defined for x >= -1).
