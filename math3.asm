@@ -53,6 +53,38 @@ t1       ds    10
 
 ****************************************************************
 *
+*  int __iscanonicall(long double x);
+*
+*  Returns nonzero iff x has a canonical representation.
+*
+*  This treats denormalized numbers or zeros that do not have
+*  the minimum exponent as non-canonical.
+*
+****************************************************************
+*
+__iscanonicall start
+result   equ   1                        result value
+
+         csubroutine (10:x),2
+
+         stz   result                   assume non-canonical
+
+         lda   x+8                      if e field is 0 or 32767 then
+         asl   a
+         beq   canonic                    x is canonical
+         cmp   #32767*2
+         beq   canonic
+
+         lda   x+6                      if i field is 1 then
+         bpl   ret                        x is canonical
+
+canonic  inc   result
+
+ret      creturn 2:result
+         end
+
+****************************************************************
+*
 *  double acospi(double x);
 *
 *  Computes acos(x)/pi.
