@@ -85,6 +85,19 @@ ret      creturn 2:result
 
 ****************************************************************
 *
+*  int __iseqsig(long double x, long double y);
+*
+*  Returns 1 if x==y, or 0 otherwise.
+*  Signals "invalid" if x or y is a NaN.
+*
+****************************************************************
+*
+__iseqsig start
+         jml   ~EQUE
+         end
+
+****************************************************************
+*
 *  double acospi(double x);
 *
 *  Computes acos(x)/pi.
